@@ -118,7 +118,7 @@ def editModel(style_id, model_id):
             'editModel.html',
             style_id=style_id,
             model_id=model_id,
-            item=editedModel)
+            model=editedModel)
 
 
 # Delete a model
