@@ -1,0 +1,51 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+    <div class="row divider green">
+        <div class="col-md-12"></div>
+    </div>
+    <div class="row banner menu">
+        <div class="col-md-11 col-md-offset-1 padding-none">
+            <h1>{{ style.name }}</h1>
+        </div>
+    </div>
+
+    <div class="row padding-top padding-bottom">
+        <div class="col-md-1"></div>
+        <div class="col-md-10 padding-none">
+            <a href="{{url_for('newModel', style_id = style.id)}}">
+                <button class="btn btn-default" id="new-style">
+                    <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Model
+                </button>
+            </a>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+    <div class = 'flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li> <strong> {{ message }} </strong> </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% for model in models %}
+        <div class="row">
+            <div class="col-md-1"></div>
+                <div class="col-md-10 style-list">
+                    <a href="{{url_for('showModelInfo', style_id = style.id, model_id = model.id)}}">
+                        <h3>{{model.name}}</h3>
+                    </a>
+                    <a href="{{url_for('editModel', style_id = style.id, model_id = model.id)}}">Edit</a>
+                    <br>
+                    <a href="{{url_for('deleteModel', style_id = style.id, model_id = model.id)}}">Delete</a>
+                </div>
+            <div class="col-md-1"></div>
+        </div>
+    {% endfor %}
+{% endblock %}
