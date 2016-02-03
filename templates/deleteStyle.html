@@ -1,13 +1,16 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
+
+{% include "breadcumb-level1.html" %}
+
 <h2> Are you sure you want to delete {{style.name}}? </h2>
 
 <form action="#" method = 'post'>
 
     <button type="submit" class="btn btn-default delete" id="submit" type="submit">
     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
-    
+
 
 </form>
 <a href = '{{url_for('showStyles')}}'>

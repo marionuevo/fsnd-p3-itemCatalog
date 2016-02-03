@@ -4,11 +4,8 @@
     <div class="row divider green">
         <div class="col-md-12"></div>
     </div>
-    <div class="row banner menu">
-        <div class="col-md-11 col-md-offset-1 padding-none">
-            <h1>{{ model.name }}</h1>
-        </div>
-    </div>
+
+    {% include "breadcumb-level2.html" %}
 
     <div class = 'flash'>
         {% with messages = get_flashed_messages() %}
@@ -22,16 +19,23 @@
         {% endwith %}
     </div>
 
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <h2>{{model.name}}</h2>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
 
     <div class="row">
         <div class="col-md-1"></div>
-            <div class="col-md-10 style-list">
-                <ul>
-                    <li><strong>Description: </strong> {{model.description}}</li>
-                    <li><strong>Price: </strong> {{model.price}} €</li>
-                    <li><strong>Power: </strong> {{model.power}} CV</li>
-                </ul>
-            </div>
+        <div class="col-md-10 style-list">
+            <ul>
+                <li><strong>Description: </strong> {{model.description}}</li>
+                <li><strong>Price: </strong> {{model.price}} €</li>
+                <li><strong>Power: </strong> {{model.power}} CV</li>
+            </ul>
+        </div>
         <div class="col-md-1"></div>
     </div>
 
