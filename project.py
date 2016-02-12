@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, \
     url_for, flash, session as login_session
 from functools import wraps
+from flask.ext.seasurf import SeaSurf
 import random
 import string
 from oauth2client.client import flow_from_clientsecrets
@@ -16,6 +17,7 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Style, Model, User
 
 app = Flask(__name__)
+csrf = SeaSurf(app)
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
