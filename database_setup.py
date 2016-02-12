@@ -40,6 +40,7 @@ class Model(Base):
     description = Column(String(250))
     price = Column(String(8))
     power = Column(String(250))
+    image = Column(String(512))
     style_id = Column(Integer, ForeignKey('style.id'))
     style = relationship(Style)
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -57,6 +58,6 @@ class Model(Base):
         }
 
 
-engine = create_engine('sqlite:///motorbikes_users.db')
+engine = create_engine('sqlite:///motorbikes_master.db')
 
 Base.metadata.create_all(engine)

@@ -21,7 +21,7 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///motorbikes_users.db')
+engine = create_engine('sqlite:///motorbikes_master.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -34,6 +34,23 @@ def login_required(f):
         if 'username' not in login_session:
             flash('You need to be logged in to access here')
             return redirect(url_for('showLogin'))
+        else:
+            return f(*args, **kwargs)
+    return decorated_function
+
+
+def owner_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'model_id' in kwargs:
+            model_id = kwargs['model_id']
+            target = session.query(Model).filter_by(id=model_id).one()
+        else:
+            style_id = kwargs['style_id']
+            target = session.query(Style).filter_by(id=style_id).one()
+
+        if target.user_id != login_session['user_id']:
+            return redirect(url_for('notAllowed'))
         else:
             return f(*args, **kwargs)
     return decorated_function
@@ -90,8 +107,9 @@ def gconnect():
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'),
+            200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -190,6 +208,8 @@ def gdisconnect():
 
 
 # JSON APIs to view Restaurant Information
+
+
 @app.route('/style/JSON')
 def showStylesJSON():
     styles = session.query(Style).order_by(asc(Style.name))
@@ -249,6 +269,7 @@ def newStyle():
 # Edit a style
 @app.route('/style/<int:style_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@owner_required
 def editStyle(style_id):
     editedStyle = session.query(Style).filter_by(id=style_id).one()
     if request.method == 'POST':
@@ -264,6 +285,7 @@ def editStyle(style_id):
 # Delete a style
 @app.route('/style/<int:style_id>/delete/', methods=['GET', 'POST'])
 @login_required
+@owner_required
 def deleteStyle(style_id):
     styleToDelete = session.query(Style).filter_by(id=style_id).one()
     if request.method == 'POST':
@@ -296,6 +318,7 @@ def newModel(style_id):
             description=request.form['description'],
             price=request.form['price'],
             power=request.form['power'],
+            image=request.form['image'],
             style_id=style_id,
             user_id=login_session['user_id'])
         session.add(newModel)
@@ -311,6 +334,7 @@ def newModel(style_id):
     '/style/<int:style_id>/model/<int:model_id>/edit',
     methods=['GET', 'POST'])
 @login_required
+@owner_required
 def editModel(style_id, model_id):
 
     editedModel = session.query(Model).filter_by(id=model_id).one()
@@ -323,7 +347,9 @@ def editModel(style_id, model_id):
         if request.form['price']:
             editedModel.price = request.form['price']
         if request.form['power']:
-            editedModel.course = request.form['power']
+            editedModel.power = request.form['power']
+        if request.form['image']:
+            editedModel.image = request.form['image']
 
         session.commit()
         flash('Model Successfully Edited')
@@ -340,6 +366,7 @@ def editModel(style_id, model_id):
     '/style/<int:style_id>/model/<int:model_id>/delete',
     methods=['GET', 'POST'])
 @login_required
+@owner_required
 def deleteModel(style_id, model_id):
     style = session.query(Style).filter_by(id=style_id).one()
     modelToDelete = session.query(Model).filter_by(id=model_id).one()
@@ -360,6 +387,12 @@ def showModelInfo(style_id, model_id):
     model = session.query(Model).filter_by(id=model_id).one()
     style = session.query(Style).filter_by(id=style_id).one()
     return render_template('modelInfo.html', model=model, style=style)
+
+
+# Now Allowed stored_credentials
+@app.route('/not_allowed')
+def notAllowed():
+    return render_template('notAllowed.html')
 
 
 if __name__ == '__main__':
