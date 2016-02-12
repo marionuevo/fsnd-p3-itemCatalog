@@ -8,10 +8,11 @@
     {% include "breadcumb-level2.html" %}
 
     <div class="row">
-        <div class="col-md-6 col-md-offset-1 padding-top">
+        <div class="col-md-12">
+            <h3>Edit {{model.name}}</h3>
             <form action="{{ url_for('editModel', style_id = style.id, model_id = model.id)}}" method = "post">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                
+
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">Name</span>
@@ -29,7 +30,6 @@
                         <input type="text" class="form-control" name="image" value="{{model.image }}">
                     </div>
 
-                    <div class="padding-bottom"></div>
                     <button type="submit" class="btn btn-default" id="submit" type="submit">
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Save</button>
                     <a href = "{{url_for('showModels', style_id = style.id)}}">

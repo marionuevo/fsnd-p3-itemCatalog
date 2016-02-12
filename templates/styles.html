@@ -2,53 +2,28 @@
 {% block content %}
 {% include "header.html" %}
 
-    <div class="row top-menu">
-        <div class="col-md-10"></div>
-        <div class="col-md-2 text-right"></div>
-    </div>
-    <div class="row divider blue">
-        <div class="col-md-12"></div>
-    </div>
-
     {% include "breadcumb-level0.html" %}
 
-    <div class = 'flash'>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-
-                <ul>
-                    {% for message in messages %}
-                        <li> <strong> {{ message }} </strong> </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    </div>
-
-    <div class="row padding-top padding-bottom">
-        <div class="col-md-1"></div>
-        <div class="col-md-10 padding-none">
+    <div class="row">
+        <div class="col-md-12">
             <a href="{{url_for('newStyle')}}">
                 <button class="btn btn-default" id="new-style">
                     <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Style
                 </button>
             </a>
         </div>
-        <div class="col-md-1"></div>
     </div>
 
     {% for style in styles %}
         <div class="row">
-            <div class="col-md-1"></div>
-                <div class="col-md-10 style-list">
-                    <a href="{{url_for('showModels', style_id = style.id)}}">
-                        <h3>{{style.name}}</h3>
-                    </a>
-                    <a href="{{ url_for('editStyle', style_id = style.id) }}">edit</a>
-                    <br>
-                    <a href="{{ url_for('deleteStyle', style_id = style.id) }}">delete</a>
-                </div>
-            <div class="col-md-1"></div>
+            <div class="col-md-12">
+                <a href="{{url_for('showModels', style_id = style.id)}}">
+                    <h3>{{style.name}}</h3>
+                </a>
+                <a href="{{ url_for('editStyle', style_id = style.id) }}">edit</a>
+                <br>
+                <a href="{{ url_for('deleteStyle', style_id = style.id) }}">delete</a>
+            </div>
         </div>
     {% endfor %}
 {% endblock %}

@@ -1,26 +1,21 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-{% include "breadcumb-level0.html" %}
-    <div class="row divider green">
-        <div class="col-md-12"></div>
-    </div>
-    <div class="row banner menu">
-        <div class="col-md-11 col-md-offset-1 padding-none">
-            <h1>New Style</h1>
-        </div>
-    </div>
+
+    {% include "breadcumb-level0.html" %}
+
     <div class="row">
-        <div class="col-md-6 col-md-offset-1 padding-top">
+        <div class="col-md-12">
+            <h3>New Style</h3>
             <form action="#" method = "post">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                
+
                 <div class="form-group">
-                <label for="name">Name:</label>
-                <input type ="text" class="form-control" maxlength="100" name="name">
-                <div class="padding-bottom"></div>
-                <button type="submit" class="btn btn-default" id="submit" type="submit">
-                <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Create</button>
+                    <label for="name">Name:</label>
+                    <input type ="text" class="form-control" maxlength="100" name="name">
+                    <button type="submit" class="btn btn-default" id="submit" type="submit">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Create
+                    </button>
                 </div>
             </form>
         </div>

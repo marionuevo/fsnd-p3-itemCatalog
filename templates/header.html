@@ -1,14 +1,19 @@
-<div class="row top-menu">
-    <div class="col-md-6">
-        <a href="{{url_for('showStyles')}}">
-            <span class="glyphicon glyphicon-home" aria-hidden="true"></span>Show All Styles
-        </a>
-    </div>
-    <div class="col-md-6 text-right">
-        {% if 'username' in session %}
-            <a href="{{url_for('gdisconnect')}}">Logout</a>
-        {% else %}
-            <a href="{{url_for('showLogin')}}">Login</a>
-        {% endif %}
-    </div>
+<div class="page-header">
+    <h1>Bikes Catalog <small>An application by Mario Nuevo</small></h1>
 </div>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+
+                    {% for category, message in messages %}
+                    <div class="alert alert-dismissible {{category}}" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+
+        {% endif %}
+    {% endwith %}

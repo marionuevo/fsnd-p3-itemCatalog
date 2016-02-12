@@ -1,6 +1,6 @@
 # Import section
 from flask import Flask, render_template, request, redirect, jsonify, \
-    url_for, flash, session as login_session
+    url_for, flash, session as login_session, make_response
 from functools import wraps
 from flask.ext.seasurf import SeaSurf
 import random
@@ -9,7 +9,6 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
 import json
-from flask import make_response
 import requests
 
 from sqlalchemy import create_engine, asc
@@ -34,7 +33,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'username' not in login_session:
-            flash('You need to be logged in to access here')
+            flash('You need to be logged in to access here', 'alert-info')
             return redirect(url_for('showLogin'))
         else:
             return f(*args, **kwargs)
@@ -57,8 +56,16 @@ def owner_required(f):
             return f(*args, **kwargs)
     return decorated_function
 
+# Returns True if there is no models in a given Style; False otherwise
+def isStyleEmpty(style_id):
+    if len(session.query(Model).filter_by(style_id=style_id).all()) == 0:
+        return True
+    else:
+        return False
+
 
 @app.route('/gconnect', methods=['POST'])
+@csrf.exempt
 def gconnect():
     # Validate state token
     if request.args.get('state') != login_session['state']:
@@ -136,16 +143,14 @@ def gconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-    output = ''
-    output += '<h1>Welcome, '
-    output += login_session['username']
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
+    flash(
+        "You are now logged in as %s" % login_session['username'],
+        'alert-success')
     print "done!"
-    return output
+    return render_template(
+        'welcome.html',
+        username=login_session['username'],
+        picture=login_session['picture'])
 
 
 # User Helper Functions
@@ -175,6 +180,7 @@ def getUserID(email):
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
+@csrf.exempt
 def gdisconnect():
     access_token = login_session['access_token']
     print 'In gdisconnect access token is %s', access_token
@@ -201,7 +207,7 @@ def gdisconnect():
         # response = make_response(json.dumps('Successfully disconnected.'), 200)
         # response.headers['Content-Type'] = 'application/json'
         # return response
-        flash('Successfully disconnected.')
+        flash('Successfully disconnected.', 'alert-success')
         return redirect(url_for('showStyles'))
     else:
         response = make_response(json.dumps('Failed to revoke token for given user.', 400))
@@ -261,7 +267,7 @@ def newStyle():
             name=request.form['name'],
             user_id=login_session['user_id'])
         session.add(newStyle)
-        flash('New Style %s Successfully Created' % newStyle.name)
+        flash('New Style %s Successfully Created' % newStyle.name, 'alert-success')
         session.commit()
         return redirect(url_for('showStyles'))
     else:
@@ -278,7 +284,7 @@ def editStyle(style_id):
         if request.form['name']:
             editedStyle.name = request.form['name']
             session.commit()
-            flash('Style Successfully Edited %s' % editedStyle.name)
+            flash('Style Successfully Edited %s' % editedStyle.name, 'alert-success')
             return redirect(url_for('showStyles'))
     else:
         return render_template('editStyle.html', style=editedStyle)
@@ -289,15 +295,18 @@ def editStyle(style_id):
 @login_required
 @owner_required
 def deleteStyle(style_id):
-    styleToDelete = session.query(Style).filter_by(id=style_id).one()
-    if request.method == 'POST':
-        session.delete(styleToDelete)
-        flash('%s Successfully Deleted' % styleToDelete.name)
-        session.commit()
-        return redirect(url_for('showStyles', style_id=style_id))
+    if isStyleEmpty(style_id):
+        styleToDelete = session.query(Style).filter_by(id=style_id).one()
+        if request.method == 'POST':
+            session.delete(styleToDelete)
+            flash('%s Successfully Deleted' % styleToDelete.name, 'alert-success')
+            session.commit()
+            return redirect(url_for('showStyles', style_id=style_id))
+        else:
+            return render_template('deleteStyle.html', style=styleToDelete)
     else:
-        return render_template('deleteStyle.html', style=styleToDelete)
-
+        flash('The style is not empty', 'alert-warning')
+        return redirect(url_for('showStyles'))
 
 # Show a style models
 @app.route('/style/<int:style_id>/')
@@ -325,7 +334,7 @@ def newModel(style_id):
             user_id=login_session['user_id'])
         session.add(newModel)
         session.commit()
-        flash('New Model %s Successfully Created' % (newModel.name))
+        flash('New Model %s Successfully Created' % (newModel.name), 'alert-success')
         return redirect(url_for('showModels', style_id=style_id))
     else:
         return render_template('newModel.html', style=style)
@@ -354,7 +363,7 @@ def editModel(style_id, model_id):
             editedModel.image = request.form['image']
 
         session.commit()
-        flash('Model Successfully Edited')
+        flash('Model Successfully Edited', 'alert-success')
         return redirect(url_for('showModels', style_id=style_id))
     else:
         return render_template(
@@ -375,7 +384,7 @@ def deleteModel(style_id, model_id):
     if request.method == 'POST':
         session.delete(modelToDelete)
         session.commit()
-        flash('Model Successfully Deleted')
+        flash('Model Successfully Deleted', 'alert-success')
         return redirect(url_for('showModels', style_id=style_id))
     else:
         return render_template(
