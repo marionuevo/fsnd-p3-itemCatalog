@@ -48,7 +48,7 @@ class Model(Base):
 
     @property
     def serialize(self):
-        """Return object data in easily serializeable format"""
+        """Return object data in easily serializeable format."""
         return {
             'name': self.name,
             'description': self.description,
