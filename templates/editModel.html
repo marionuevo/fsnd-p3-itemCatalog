@@ -23,13 +23,13 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">Description</span>
-                        <textarea maxlength="250" class="form-control" name="description">{{model.description}}</textarea>
+                        <textarea maxlength="1024" rows="10" class="form-control" name="description">{{model.description}}</textarea>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="input-group">
-                        <span class="input-group-addon">Price ($)</span>
+                        <span class="input-group-addon">Price (€)</span>
                         <input type="number" maxlength="10" class="form-control" name="price" value="{{model.price}}">
                     </div>
                 </div>

@@ -37,7 +37,7 @@ class Model(Base):
 
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
-    description = Column(String(250))
+    description = Column(String(1024))
     price = Column(String(8))
     power = Column(String(250))
     image = Column(String(512))

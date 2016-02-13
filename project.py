@@ -1,3 +1,7 @@
+"""This application creates an item catalog.
+
+This is the project 3 for the FSND at Udacity, created by Mario Nuevo.
+"""
 # Import section
 from flask import Flask, render_template, request, redirect, jsonify, \
     url_for, flash, session as login_session, make_response

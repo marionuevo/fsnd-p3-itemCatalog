@@ -5,21 +5,27 @@
     {% include "breadcumb-level2.html" %}
 
     <div class="row">
-        <div class="col-md-12">
-            <h3>{{model.name}}</h3>
-        </div>
-    </div>
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">{{model.name}}</div>
+                <div class="panel-body">
+                    <p class="text-justify">
+                        {{model.description}}
+                    </p>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Price: </strong> {{model.price}} €</li>
+                    <li class="list-group-item"><strong>Power: </strong> {{model.power}} CV</li>
+                </ul>
+            </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <ul class="list-group">
-                <li class="list-group-item"><strong>Description: </strong> {{model.description}}</li>
-                <li class="list-group-item"><strong>Price: </strong> {{model.price}} €</li>
-                <li class="list-group-item"><strong>Power: </strong> {{model.power}} CV</li>
-                <li class="list-group-item">
-                    <img class="img-responsive" src="{{model.image}}" alt="{{model.name}} image">
-                </li>
-            </ul>
+
+        </div>
+        <div class="col-md-8">
+            <a target="_blank" href="{{model.image}}">
+                <img class="img-responsive img-thumbnail" src="{{model.image}}" alt="{{model.name}} image">
+            </a>
+            <div class="caption">{{model.name}} | Click for a full-size image</div>
         </div>
     </div>
 
