@@ -18,9 +18,9 @@
                 </a>
                 <p class="navbar-text navbar-right">
                     {% if 'username' in session %}
-                        <a href="{{url_for('gdisconnect')}}">Logout</a>
+                        <a class="btn btn-primary btn-xs" href="{{url_for('gdisconnect')}}">Logout</a>
                     {% else %}
-                        <a href="{{url_for('showLogin')}}">Login</a>
+                        <a class="btn btn-primary btn-xs" href="{{url_for('showLogin')}}">Login</a>
                     {% endif %}
                 </p>
             </div>

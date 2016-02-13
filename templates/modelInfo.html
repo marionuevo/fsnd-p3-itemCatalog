@@ -1,45 +1,26 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-    <div class="row divider green">
-        <div class="col-md-12"></div>
-    </div>
 
     {% include "breadcumb-level2.html" %}
 
-    <div class = 'flash'>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                {% for message in messages %}
-                    <li> <strong> {{ message }} </strong> </li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    </div>
-
     <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-10">
-            <h2>{{model.name}}</h2>
+        <div class="col-md-12">
+            <h3>{{model.name}}</h3>
         </div>
-        <div class="col-md-1"></div>
     </div>
 
     <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-10 style-list">
-            <ul>
-                <li><strong>Description: </strong> {{model.description}}</li>
-                <li><strong>Price: </strong> {{model.price}} €</li>
-                <li><strong>Power: </strong> {{model.power}} CV</li>
-                <li>
+        <div class="col-md-12">
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Description: </strong> {{model.description}}</li>
+                <li class="list-group-item"><strong>Price: </strong> {{model.price}} €</li>
+                <li class="list-group-item"><strong>Power: </strong> {{model.power}} CV</li>
+                <li class="list-group-item">
                     <img class="img-responsive" src="{{model.image}}" alt="{{model.name}} image">
                 </li>
             </ul>
         </div>
-        <div class="col-md-1"></div>
     </div>
 
 {% endblock %}

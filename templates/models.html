@@ -19,13 +19,12 @@
 
     {% for model in models %}
         <div class="row">
-            <div class="col-md-12">
-                <a href="{{url_for('showModelInfo', style_id = style.id, model_id = model.id)}}">
-                    <h3>{{model.name}}</h3>
-                </a>
-                <a href="{{url_for('editModel', style_id = style.id, model_id = model.id)}}">Edit</a>
-                <br>
-                <a href="{{url_for('deleteModel', style_id = style.id, model_id = model.id)}}">Delete</a>
+            <div class="col-md-6">
+                <h3>
+                    <a href="{{url_for('showModelInfo', style_id = style.id, model_id = model.id)}}">{{model.name}}</a>
+                    <a class="btn btn-info btn-xs" href="{{url_for('editModel', style_id = style.id, model_id = model.id)}}" role="button">edit</a>
+                    <a class="btn btn-danger btn-xs" href="{{url_for('deleteModel', style_id = style.id, model_id = model.id)}}" role="button">delete</a>
+                </h3>
             </div>
         </div>
     {% endfor %}
