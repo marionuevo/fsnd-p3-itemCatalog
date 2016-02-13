@@ -34,6 +34,10 @@ session = DBSession()
 
 
 def login_required(f):
+    """Function decorator.
+
+    Requires to be logged before using a function.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'username' not in login_session:
@@ -45,23 +49,35 @@ def login_required(f):
 
 
 def owner_required(f):
+    """Function decorator.
+
+    Requires to be the owner of an item before modyfing it.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        style_id = kwargs['style_id']
         if 'model_id' in kwargs:
             model_id = kwargs['model_id']
             target = session.query(Model).filter_by(id=model_id).one()
+            return_target = url_for('showModels', style_id=style_id)
         else:
-            style_id = kwargs['style_id']
             target = session.query(Style).filter_by(id=style_id).one()
+            return_target = url_for('showStyles')
 
         if target.user_id != login_session['user_id']:
-            return redirect(url_for('notAllowed'))
+            flash(
+                "You are not allowed to perform this operation because " +
+                "you don't own the item",
+                'alert-danger')
+            return redirect(return_target)
+            url_for('showModels', style_id=style_id)
         else:
             return f(*args, **kwargs)
     return decorated_function
 
-# Returns True if there is no models in a given Style; False otherwise
+
 def isStyleEmpty(style_id):
+    """Return True if there is no models in a given Style. False otherwise."""
     if len(session.query(Model).filter_by(style_id=style_id).all()) == 0:
         return True
     else:
@@ -71,6 +87,7 @@ def isStyleEmpty(style_id):
 @app.route('/gconnect', methods=['POST'])
 @csrf.exempt
 def gconnect():
+    """Connect to Google API authentication."""
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -158,9 +175,8 @@ def gconnect():
 
 
 # User Helper Functions
-
-
 def createUser(login_session):
+    """Create a user with the dara retrieved from the Google API."""
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
     session.add(newUser)
@@ -170,11 +186,13 @@ def createUser(login_session):
 
 
 def getUserInfo(user_id):
+    """Get user information from the database."""
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def getUserID(email):
+    """Get user id from the database given the email."""
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -182,10 +200,10 @@ def getUserID(email):
         return None
 
 
-# DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
 @csrf.exempt
 def gdisconnect():
+    """Disconnect from Google API authentication."""
     access_token = login_session['access_token']
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
@@ -197,7 +215,8 @@ def gdisconnect():
             401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
+        % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -208,13 +227,12 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-        # response = make_response(json.dumps('Successfully disconnected.'), 200)
-        # response.headers['Content-Type'] = 'application/json'
-        # return response
         flash('Successfully disconnected.', 'alert-success')
         return redirect(url_for('showStyles'))
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps(
+            'Failed to revoke token for given user.',
+            400))
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -224,6 +242,7 @@ def gdisconnect():
 
 @app.route('/style/JSON')
 def showStylesJSON():
+    """Return a JSON formatted list of styles."""
     styles = session.query(Style).order_by(asc(Style.name))
     return jsonify(styles=[r.serialize for r in styles])
 
@@ -231,29 +250,31 @@ def showStylesJSON():
 @app.route('/style/<int:style_id>/JSON')
 @app.route('/style/<int:style_id>/model/JSON')
 def showModelsJSON(style_id):
-    """Show a list of models given a style."""
+    """Return a JSON formatted list of models given a style."""
     models = session.query(Model).filter_by(style_id=style_id).all()
     return jsonify(models=[r.serialize for r in models])
 
 
 @app.route('/style/<int:style_id>/model/<int:model_id>/JSON')
 def showModelInfoJSON(style_id, model_id):
+    """Return a JSON formatted model information."""
     model = session.query(Model).filter_by(id=model_id).one()
     return jsonify(model=model.serialize)
 
 
-# Create a state token to prevent request forgery
-# Store it in the session for later validation
 @app.route('/login')
 def showLogin():
+    """Show login page.
+
+    Create a state token to prevent request forgery
+    Store it in the session for later validation
+    """
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    # return "The current session state is %s" %login_session['state']
     return render_template('login.html', STATE=state)
 
 
-# Show all styles
 @app.route('/')
 @app.route('/style/')
 def showStyles():
@@ -262,48 +283,54 @@ def showStyles():
     return render_template('styles.html', styles=styles)
 
 
-# Create a new style
 @app.route('/style/new/', methods=['GET', 'POST'])
 @login_required
 def newStyle():
+    """Create a new style."""
     if request.method == 'POST':
         newStyle = Style(
             name=request.form['name'],
             user_id=login_session['user_id'])
         session.add(newStyle)
-        flash('New Style %s Successfully Created' % newStyle.name, 'alert-success')
+        flash(
+            'New Style %s Successfully Created' % newStyle.name,
+            'alert-success')
         session.commit()
         return redirect(url_for('showStyles'))
     else:
         return render_template('newStyle.html')
 
 
-# Edit a style
 @app.route('/style/<int:style_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @owner_required
 def editStyle(style_id):
+    """Edit a style."""
     editedStyle = session.query(Style).filter_by(id=style_id).one()
     if request.method == 'POST':
         if request.form['name']:
             editedStyle.name = request.form['name']
             session.commit()
-            flash('Style Successfully Edited %s' % editedStyle.name, 'alert-success')
+            flash(
+                'Style Successfully Edited %s' % editedStyle.name,
+                'alert-success')
             return redirect(url_for('showStyles'))
     else:
         return render_template('editStyle.html', style=editedStyle)
 
 
-# Delete a style
 @app.route('/style/<int:style_id>/delete/', methods=['GET', 'POST'])
 @login_required
 @owner_required
 def deleteStyle(style_id):
+    """Delete a style."""
     if isStyleEmpty(style_id):
         styleToDelete = session.query(Style).filter_by(id=style_id).one()
         if request.method == 'POST':
             session.delete(styleToDelete)
-            flash('%s Successfully Deleted' % styleToDelete.name, 'alert-success')
+            flash(
+                '%s Successfully Deleted' % styleToDelete.name,
+                'alert-success')
             session.commit()
             return redirect(url_for('showStyles', style_id=style_id))
         else:
@@ -312,7 +339,7 @@ def deleteStyle(style_id):
         flash('The style is not empty', 'alert-warning')
         return redirect(url_for('showStyles'))
 
-# Show a style models
+
 @app.route('/style/<int:style_id>/')
 @app.route('/style/<int:style_id>/model/')
 def showModels(style_id):
@@ -322,10 +349,10 @@ def showModels(style_id):
     return render_template('models.html', models=models, style=style)
 
 
-# Create a new model
 @app.route('/style/<int:style_id>/model/new/', methods=['GET', 'POST'])
 @login_required
 def newModel(style_id):
+    """Create a new model."""
     style = session.query(Style).filter_by(id=style_id).one()
     if request.method == 'POST':
         newModel = Model(
@@ -338,20 +365,21 @@ def newModel(style_id):
             user_id=login_session['user_id'])
         session.add(newModel)
         session.commit()
-        flash('New Model %s Successfully Created' % (newModel.name), 'alert-success')
+        flash(
+            'New Model %s Successfully Created' % (newModel.name),
+            'alert-success')
         return redirect(url_for('showModels', style_id=style_id))
     else:
         return render_template('newModel.html', style=style)
 
 
-# Edit a model
 @app.route(
     '/style/<int:style_id>/model/<int:model_id>/edit',
     methods=['GET', 'POST'])
 @login_required
 @owner_required
 def editModel(style_id, model_id):
-
+    """Edit a model."""
     editedModel = session.query(Model).filter_by(id=model_id).one()
     style = session.query(Style).filter_by(id=style_id).one()
     if request.method == 'POST':
@@ -376,13 +404,13 @@ def editModel(style_id, model_id):
             model=editedModel)
 
 
-# Delete a model
 @app.route(
     '/style/<int:style_id>/model/<int:model_id>/delete',
     methods=['GET', 'POST'])
 @login_required
 @owner_required
 def deleteModel(style_id, model_id):
+    """Delete a model."""
     style = session.query(Style).filter_by(id=style_id).one()
     modelToDelete = session.query(Model).filter_by(id=model_id).one()
     if request.method == 'POST':
@@ -396,18 +424,13 @@ def deleteModel(style_id, model_id):
             model=modelToDelete,
             style=style)
 
-# Show a model information
+
 @app.route('/style/<int:style_id>/model/<int:model_id>/info')
 def showModelInfo(style_id, model_id):
+    """Show a model inforation."""
     model = session.query(Model).filter_by(id=model_id).one()
     style = session.query(Style).filter_by(id=style_id).one()
     return render_template('modelInfo.html', model=model, style=style)
-
-
-# Now Allowed stored_credentials
-@app.route('/not_allowed')
-def notAllowed():
-    return render_template('notAllowed.html')
 
 
 if __name__ == '__main__':
