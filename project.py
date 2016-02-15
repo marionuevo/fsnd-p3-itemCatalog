@@ -55,6 +55,8 @@ def owner_required(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Since I'm using this decorator both for styles and models, I need
+        # to differentiate between both.
         style_id = kwargs['style_id']
         if 'model_id' in kwargs:
             model_id = kwargs['model_id']
