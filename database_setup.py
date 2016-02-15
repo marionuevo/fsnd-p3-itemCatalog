@@ -1,3 +1,5 @@
+"""This file creates and setups the required database."""
+# imprt section
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -6,6 +8,7 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
+# Define the users table.
 class User(Base):
     __tablename__ = 'user'
 
@@ -15,6 +18,7 @@ class User(Base):
     picture = Column(String(250))
 
 
+# Define the styles table.
 class Style(Base):
     __tablename__ = 'style'
 
@@ -25,13 +29,14 @@ class Style(Base):
 
     @property
     def serialize(self):
-        """Return object data in easily serializeable format"""
+        """Return object data in easily serializeable format."""
         return {
             'name': self.name,
             'id': self.id
         }
 
 
+# Define the models table.
 class Model(Base):
     __tablename__ = 'model'
 
