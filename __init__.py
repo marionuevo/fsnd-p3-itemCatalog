@@ -27,7 +27,7 @@ csrf = SeaSurf(app)
 APP_PATH = os.path.realpath('./')
 print APP_PATH
 CLIENT_ID = json.loads(
-    open(APP_PATH + 'client_secrets.json', 'r').read())['web']['client_id']
+    open(APP_PATH + '/client_secrets.json', 'r').read())['web']['client_id']
 
 # Connect to Database and create database session
 engine = create_engine('postgresql://catalog:logcata@localhost/')
