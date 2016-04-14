@@ -25,3 +25,6 @@ Several quick start options are available:
 - Clone the repository using: `git clone https://github.com/marionuevo/fsnd-p3-itemCatalog.git`.
 
 Then, run the application by typing `python project.py` into the terminal.
+
+## Branching
+This `linux-server` branch is configured to run under the server environment provided for **P5: Linux Server Configuration**

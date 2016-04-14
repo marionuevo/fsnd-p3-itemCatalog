@@ -63,6 +63,6 @@ class Model(Base):
         }
 
 
-engine = create_engine('sqlite:///motorbikes_master.db')
+engine = create_engine('postgresql://catalog:logcata@localhost/')
 
 Base.metadata.create_all(engine)
