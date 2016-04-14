@@ -24,7 +24,7 @@ app = Flask(__name__)
 csrf = SeaSurf(app)
 
 # APP_PATH = '/var/www/itemCatalog/itemCatalog/'
-APP_PATH = os.path.realpath(__file__)
+APP_PATH = os.path.realpath('./')
 print APP_PATH
 CLIENT_ID = json.loads(
     open(APP_PATH + 'client_secrets.json', 'r').read())['web']['client_id']
