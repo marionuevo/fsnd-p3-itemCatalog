@@ -15,6 +15,7 @@ import httplib2
 import json
 import requests
 import os
+import sys
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
@@ -23,8 +24,8 @@ from database_setup import Base, Style, Model, User
 app = Flask(__name__)
 csrf = SeaSurf(app)
 
-APP_PATH = os.path.realpath('./')
-print APP_PATH
+APP_PATH = os.path.dirname(__file__)
+
 CLIENT_ID = json.loads(
     open(APP_PATH + '/client_secrets.json', 'r').read())['web']['client_id']
 
@@ -100,7 +101,7 @@ def gconnect():
         return response
     # Obtain authorization code
     code = request.data
-
+	
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets(APP_PATH + '/client_secrets.json', scope='')
